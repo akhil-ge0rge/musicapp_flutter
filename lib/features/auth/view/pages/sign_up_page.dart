@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:client/core/extensions/mediaquery_extensions.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
@@ -36,14 +38,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     final isLoading = ref.watch(
       authViewmodelProvider.select((value) => value?.isLoading == true),
     );
-
+    log("SIGN UP");
     ref.listen(authViewmodelProvider, (_, next) {
+      log("authViewmodelProvider listen to signUP");
       next?.when(
         data: (data) {
           showSnackBar(context, "User created sucessfully");
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => SignInPage()));
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (context) => const SignInPage()));
+          });
         },
         error: (error, stackTrace) {
           showSnackBar(context, error.toString());
@@ -56,73 +61,78 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       body:
           isLoading
               ? const LoaderWidget()
-              : Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Sign Up.",
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      (scrHeight * 0.08).height,
-                      CustomField(hintText: "Name", controller: nameController),
-                      (scrHeight * 0.03).height,
-                      CustomField(
-                        hintText: "Email",
-                        controller: emailController,
-                      ),
-                      (scrHeight * 0.03).height,
-                      CustomField(
-                        hintText: "Password",
-                        controller: passwordController,
-                        isObscure: true,
-                      ),
-                      (scrHeight * 0.03).height,
-                      AuthGradientButton(
-                        text: "Sign Up",
-                        onTap: () async {
-                          if (formKey.currentState!.validate()) {
-                            await ref
-                                .read(authViewmodelProvider.notifier)
-                                .signUp(
-                                  email: emailController.text,
-                                  name: nameController.text,
-                                  password: passwordController.text,
-                                );
-                          } else {
-                            showSnackBar(context, "Missing Fields");
-                          }
-                        },
-                      ),
-                      (scrHeight * 0.02).height,
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SignInPage(),
-                            ),
-                          );
-                        },
-                        child: RichText(
-                          text: TextSpan(
-                            text: "Already have an account? ",
-                            style: Theme.of(context).textTheme.titleMedium,
-                            children: [
-                              const TextSpan(
-                                text: "Sign In",
-                                style: TextStyle(color: Pallete.gradient2),
-                              ),
-                            ],
+              : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Sign Up.",
+                          style: TextStyle(
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        (scrHeight * 0.08).height,
+                        CustomField(
+                          hintText: "Name",
+                          controller: nameController,
+                        ),
+                        (scrHeight * 0.03).height,
+                        CustomField(
+                          hintText: "Email",
+                          controller: emailController,
+                        ),
+                        (scrHeight * 0.03).height,
+                        CustomField(
+                          hintText: "Password",
+                          controller: passwordController,
+                          isObscure: true,
+                        ),
+                        (scrHeight * 0.03).height,
+                        AuthGradientButton(
+                          text: "Sign Up",
+                          onTap: () async {
+                            if (formKey.currentState!.validate()) {
+                              await ref
+                                  .read(authViewmodelProvider.notifier)
+                                  .signUp(
+                                    email: emailController.text,
+                                    name: nameController.text,
+                                    password: passwordController.text,
+                                  );
+                            } else {
+                              showSnackBar(context, "Missing Fields");
+                            }
+                          },
+                        ),
+                        (scrHeight * 0.02).height,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const SignInPage(),
+                              ),
+                            );
+                          },
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Already have an account? ",
+                              style: Theme.of(context).textTheme.titleMedium,
+                              children: [
+                                const TextSpan(
+                                  text: "Sign In",
+                                  style: TextStyle(color: Pallete.gradient2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

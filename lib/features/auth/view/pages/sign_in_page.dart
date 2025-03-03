@@ -37,15 +37,17 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     final isLoading = ref.watch(
       authViewmodelProvider.select((value) => value?.isLoading == true),
     );
-
+    log("SIGN IN");
     ref.listen(authViewmodelProvider, (_, next) {
+      log("authViewmodelProvider listen to SignIN");
       next?.when(
         data: (data) {
-          log("hii");
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => HomePage()),
-            (_) => false,
-          );
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const HomePage()),
+              (_) => false,
+            );
+          });
         },
         error: (error, stackTrace) {
           showSnackBar(context, error.toString());
@@ -105,7 +107,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                           onTap: () {
                             Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                builder: (context) => SignUpPage(),
+                                builder: (context) => const SignUpPage(),
                               ),
                               (route) => false,
                             );
