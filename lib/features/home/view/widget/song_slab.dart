@@ -40,7 +40,8 @@ class SongSlab extends ConsumerWidget {
       },
       child: Stack(
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
             height: 66,
             decoration: BoxDecoration(
               color: hexToRgb(currentSong.hexColor),
