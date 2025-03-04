@@ -6,20 +6,6 @@ part of 'home_repository.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$getAllSongsHash() => r'700b9dd7148e6e756e3b0b519a7785fd0ac9fdab';
-
-/// See also [getAllSongs].
-@ProviderFor(getAllSongs)
-final getAllSongsProvider = AutoDisposeFutureProvider<List<SongModel>>.internal(
-  getAllSongs,
-  name: r'getAllSongsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$getAllSongsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef GetAllSongsRef = AutoDisposeFutureProviderRef<List<SongModel>>;
 String _$homeRepositoryHash() => r'a7ad35b71d152c2f2e026facffd4f91979e425ab';
 
 /// See also [homeRepository].

@@ -11,17 +11,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'home_repository.g.dart';
 
 @riverpod
-Future<List<SongModel>> getAllSongs(Ref ref) async {
-  final token = ref.watch(currentUserNotifierProvider)!.token;
-  final res = await ref.watch(homeRepositoryProvider).getAllSongs(token: token);
-
-  return switch (res) {
-    Left(value: final l) => throw l.message,
-    Right(value: final r) => r,
-  };
-}
-
-@riverpod
 HomeRepository homeRepository(Ref ref) {
   return HomeRepository();
 }
@@ -79,6 +68,54 @@ class HomeRepository {
       List<SongModel> songList = [];
       for (var song in resBody) {
         songList.add(SongModel.fromMap(song));
+      }
+      return Right(songList);
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, bool>> favorite({
+    required String token,
+    required String songId,
+  }) async {
+    try {
+      Map<String, dynamic> body = {"song_id": songId};
+
+      final response = await http.post(
+        Uri.parse('${ServerConstant.serverUrl}/song/fav'),
+        body: jsonEncode(body),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+      var resBody = jsonDecode(response.body);
+      if (response.statusCode != 200) {
+        resBody = resBody as Map<String, dynamic>;
+        return Left(AppFailure(resBody["detail"]));
+      }
+
+      return Right(resBody['message']);
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
+    }
+  }
+
+  Future<Either<AppFailure, List<SongModel>>> getFavoriteSongs({
+    required String token,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ServerConstant.serverUrl}/song/list/favs'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+      var resBody = jsonDecode(response.body);
+      if (response.statusCode != 200) {
+        resBody = resBody as Map<String, dynamic>;
+        return Left(AppFailure(resBody["detail"]));
+      }
+      resBody = resBody as List;
+      List<SongModel> songList = [];
+      for (var song in resBody) {
+        songList.add(SongModel.fromMap(song['song']));
       }
       return Right(songList);
     } catch (e) {

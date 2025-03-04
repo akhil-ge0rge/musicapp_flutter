@@ -1,5 +1,5 @@
-import 'dart:developer';
-
+import 'package:client/core/providers/current_user_notifier.dart';
+import 'package:client/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +16,9 @@ class MusicPlayer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSong = ref.watch(currentSongNotifierProvider);
     final songNotifier = ref.read(currentSongNotifierProvider.notifier);
+    final userFavorites = ref.watch(
+      currentUserNotifierProvider.select((value) => value!.favorites),
+    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       decoration: BoxDecoration(
@@ -98,9 +101,17 @@ class MusicPlayer extends ConsumerWidget {
                       ),
                       const Expanded(child: SizedBox()),
                       IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          CupertinoIcons.heart,
+                        onPressed:
+                            () async => await ref
+                                .read(homeViewModelProvider.notifier)
+                                .favoriteSong(songId: currentSong.id),
+                        icon: Icon(
+                          userFavorites
+                                  .where((fav) => fav.songId == currentSong.id)
+                                  .toList()
+                                  .isNotEmpty
+                              ? CupertinoIcons.heart_fill
+                              : CupertinoIcons.heart,
                           color: Pallete.whiteColor,
                         ),
                       ),

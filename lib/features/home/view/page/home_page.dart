@@ -1,6 +1,7 @@
 import 'package:client/core/constants/image_constant.dart';
 import 'package:client/core/providers/current_user_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
+import 'package:client/features/home/view/page/library_page.dart';
 import 'package:client/features/home/view/page/songs_page.dart';
 import 'package:client/features/home/view/page/upload_song_page.dart';
 import 'package:client/features/home/view/widget/song_slab.dart';
@@ -17,7 +18,7 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   int selectedIndex = 0;
 
-  final pages = const [SongsPage(), UploadSongPage()];
+  final pages = const [SongsPage(), LibraryPage()];
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserNotifierProvider);
