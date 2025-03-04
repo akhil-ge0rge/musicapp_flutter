@@ -44,11 +44,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       next?.when(
         data: (data) {
           showSnackBar(context, "User created sucessfully");
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (context) => const SignInPage()));
-          });
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => const SignInPage()));
         },
         error: (error, stackTrace) {
           showSnackBar(context, error.toString());

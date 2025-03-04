@@ -18,9 +18,25 @@ class SongSlab extends ConsumerWidget {
     }
     return GestureDetector(
       onTap: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => const MusicPlayer()));
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder:
+                (context, animation, secondaryAnimation) => const MusicPlayer(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              final tween = Tween(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).chain(CurveTween(curve: Curves.easeIn));
+              final offsetAnimation = animation.drive(tween);
+              return SlideTransition(position: offsetAnimation, child: child);
+            },
+          ),
+        );
       },
       child: Stack(
         children: [
@@ -37,13 +53,16 @@ class SongSlab extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 48,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(currentSong.thumbnailUrl),
+                    Hero(
+                      tag: 'music-image',
+                      child: Container(
+                        width: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(currentSong.thumbnailUrl),
+                          ),
                         ),
                       ),
                     ),

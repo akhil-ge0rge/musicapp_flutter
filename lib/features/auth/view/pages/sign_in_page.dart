@@ -42,12 +42,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       log("authViewmodelProvider listen to SignIN");
       next?.when(
         data: (data) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const HomePage()),
-              (_) => false,
-            );
-          });
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomePage()),
+            (_) => false,
+          );
         },
         error: (error, stackTrace) {
           showSnackBar(context, error.toString());
