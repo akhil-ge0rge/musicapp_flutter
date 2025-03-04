@@ -1,10 +1,13 @@
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:client/core/constants/image_constant.dart';
 import 'package:client/core/providers/current_song_notifier.dart';
 import 'package:client/core/theme/app_pallete.dart';
 import 'package:client/core/utils.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MusicPlayer extends ConsumerWidget {
   const MusicPlayer({super.key});
@@ -12,6 +15,7 @@ class MusicPlayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentSong = ref.watch(currentSongNotifierProvider);
+    final songNotifier = ref.read(currentSongNotifierProvider.notifier);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       decoration: BoxDecoration(
@@ -103,39 +107,73 @@ class MusicPlayer extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: Pallete.whiteColor,
-                      inactiveTrackColor: Pallete.whiteColor.withValues(
-                        alpha: 0.117,
-                      ),
-                      thumbColor: Pallete.whiteColor,
-                      trackHeight: 4,
-                      overlayShape: SliderComponentShape.noOverlay,
-                    ),
-                    child: Slider(value: 0.5, onChanged: (val) {}),
+                  StreamBuilder(
+                    stream: songNotifier.audioPlayer!.positionStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox();
+                      }
+
+                      final position = snapshot.data;
+                      final duration = songNotifier.audioPlayer?.duration;
+                      double sliderValue = 0.0;
+                      if (position != null && duration != null) {
+                        sliderValue =
+                            position.inMilliseconds / duration.inMilliseconds;
+                      }
+                      return Column(
+                        children: [
+                          StatefulBuilder(
+                            builder: (context, setState) {
+                              return SliderTheme(
+                                data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: Pallete.whiteColor,
+                                  inactiveTrackColor: Pallete.whiteColor
+                                      .withValues(alpha: 0.117),
+                                  thumbColor: Pallete.whiteColor,
+                                  trackHeight: 4,
+                                  overlayShape: SliderComponentShape.noOverlay,
+                                ),
+                                child: Slider(
+                                  value: sliderValue,
+                                  min: 0,
+                                  max: 1,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      sliderValue = val;
+                                    });
+                                  },
+                                  onChangeEnd: songNotifier.seek,
+                                ),
+                              );
+                            },
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                '${position?.inMinutes} : ${(position?.inSeconds ?? 0) < 10 ? '0${position?.inSeconds}' : position?.inSeconds}',
+                                style: const TextStyle(
+                                  color: Pallete.subtitleText,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                              const Expanded(child: SizedBox()),
+                              Text(
+                                '${duration?.inMinutes} : ${(duration?.inSeconds ?? 0) < 10 ? '0${duration?.inSeconds}' : duration?.inSeconds}',
+                                style: const TextStyle(
+                                  color: Pallete.subtitleText,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                  const Row(
-                    children: [
-                      Text(
-                        '0:05',
-                        style: const TextStyle(
-                          color: Pallete.subtitleText,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                      const Expanded(child: SizedBox()),
-                      Text(
-                        '0:10',
-                        style: const TextStyle(
-                          color: Pallete.subtitleText,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    ],
-                  ),
+
                   const SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,9 +193,11 @@ class MusicPlayer extends ConsumerWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          CupertinoIcons.play_circle_fill,
+                        onPressed: songNotifier.playPause,
+                        icon: Icon(
+                          songNotifier.isPlaying
+                              ? CupertinoIcons.pause_circle_fill
+                              : CupertinoIcons.play_circle_fill,
                           size: 80,
                           color: Pallete.whiteColor,
                         ),

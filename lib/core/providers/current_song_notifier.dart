@@ -48,4 +48,12 @@ class CurrentSongNotifier extends _$CurrentSongNotifier {
     //for updating ui
     state = state?.copyWith(hexColor: state?.hexColor);
   }
+
+  void seek(double val) {
+    audioPlayer!.seek(
+      Duration(
+        milliseconds: (val * audioPlayer!.duration!.inMilliseconds).toInt(),
+      ),
+    );
+  }
 }
